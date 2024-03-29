@@ -39,7 +39,7 @@ namespace WindowsFormsApp2
 
         private void button3_Click(object sender, EventArgs e)
         {
-            EmanetIslemleri frm3 = new EmanetIslemleri();
+            FrmEmanetIslemleri frm3 = new FrmEmanetIslemleri();
             frm3.Show();
             this.Hide();
         }
