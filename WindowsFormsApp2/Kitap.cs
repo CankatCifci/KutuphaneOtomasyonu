@@ -12,5 +12,7 @@ namespace WindowsFormsApp2
         public string KitapAdi { get; set; }
         public string Yazar { get; set; }
         // Diğer özellikler
+            
     }
+
 }
