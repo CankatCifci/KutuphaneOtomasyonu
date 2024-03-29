@@ -71,6 +71,7 @@
             this.txtKitapAdi.Size = new System.Drawing.Size(182, 22);
             this.txtKitapAdi.TabIndex = 3;
             this.txtKitapAdi.Text = "KitapAdi";
+            this.txtKitapAdi.TextChanged += new System.EventHandler(this.txtKitapAdi_TextChanged);
             // 
             // txtKitapId
             // 

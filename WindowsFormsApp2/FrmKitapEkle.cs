@@ -24,6 +24,7 @@ namespace WindowsFormsApp
             kitaplar = new List<Kitap>();
             DosyaOku(); // Mevcut kitapları dosyadan oku
             OtomatikKitapIdAta(); // Otomatik KitapId ataması yap
+            txtKitapId.Enabled = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -106,12 +107,12 @@ namespace WindowsFormsApp
         {
 
         }
+
+        private void txtKitapAdi_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
-    public class Kitap
-    {
-        public int KitapId { get; set; }
-        public string KitapAdi { get; set; }
-        public string Yazar { get; set; }
-    }
+ 
 }
