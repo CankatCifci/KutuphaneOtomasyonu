@@ -35,6 +35,7 @@
             this.btnIade = new System.Windows.Forms.Button();
             this.txtEkBilgi = new System.Windows.Forms.TextBox();
             this.dgvEmanetler = new System.Windows.Forms.DataGridView();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvEmanetler)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,6 +60,7 @@
             // 
             // lstKitaplar
             // 
+            this.lstKitaplar.BackColor = System.Drawing.SystemColors.Window;
             this.lstKitaplar.FormattingEnabled = true;
             this.lstKitaplar.ItemHeight = 16;
             this.lstKitaplar.Location = new System.Drawing.Point(240, 41);
@@ -69,22 +71,24 @@
             // 
             // btnEmanet
             // 
+            this.btnEmanet.BackColor = System.Drawing.SystemColors.Highlight;
             this.btnEmanet.Location = new System.Drawing.Point(670, 41);
             this.btnEmanet.Name = "btnEmanet";
             this.btnEmanet.Size = new System.Drawing.Size(80, 40);
             this.btnEmanet.TabIndex = 3;
             this.btnEmanet.Text = "Emanet et";
-            this.btnEmanet.UseVisualStyleBackColor = true;
+            this.btnEmanet.UseVisualStyleBackColor = false;
             this.btnEmanet.Click += new System.EventHandler(this.btnEmanet_Click_1);
             // 
             // btnIade
             // 
+            this.btnIade.BackColor = System.Drawing.SystemColors.Highlight;
             this.btnIade.Location = new System.Drawing.Point(670, 102);
             this.btnIade.Name = "btnIade";
             this.btnIade.Size = new System.Drawing.Size(80, 40);
             this.btnIade.TabIndex = 4;
             this.btnIade.Text = "iade";
-            this.btnIade.UseVisualStyleBackColor = true;
+            this.btnIade.UseVisualStyleBackColor = false;
             this.btnIade.Click += new System.EventHandler(this.btnIade_Click_1);
             // 
             // txtEkBilgi
@@ -97,7 +101,7 @@
             // dgvEmanetler
             // 
             this.dgvEmanetler.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvEmanetler.Location = new System.Drawing.Point(29, 238);
+            this.dgvEmanetler.Location = new System.Drawing.Point(27, 211);
             this.dgvEmanetler.Name = "dgvEmanetler";
             this.dgvEmanetler.RowHeadersWidth = 51;
             this.dgvEmanetler.RowTemplate.Height = 24;
@@ -105,12 +109,24 @@
             this.dgvEmanetler.TabIndex = 7;
             this.dgvEmanetler.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvEmanetler_CellContentClick);
             // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.SystemColors.Highlight;
+            this.button2.Location = new System.Drawing.Point(619, 386);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(142, 36);
+            this.button2.TabIndex = 8;
+            this.button2.Text = "Düzenle";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // FrmEmanetIslemleri
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.dgvEmanetler);
             this.Controls.Add(this.txtEkBilgi);
             this.Controls.Add(this.btnIade);
@@ -136,5 +152,6 @@
         public System.Windows.Forms.Button btnIade;
         public System.Windows.Forms.TextBox txtEkBilgi;
         private System.Windows.Forms.DataGridView dgvEmanetler;
+        private System.Windows.Forms.Button button2;
     }
 }

@@ -246,5 +246,29 @@ namespace WindowsFormsApp2
         {
 
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            int selectedEmanetId = Convert.ToInt32(dgvEmanetler.SelectedRows[0].Cells["EmanetId"].Value);
+
+            // Seçilen emaneti bul
+            Emanet selectedEmanet = emanetler.FirstOrDefault(emanet => emanet.EmanetId == selectedEmanetId);
+
+            if (selectedEmanet != null)
+            {
+                // Düzenleme formunu oluştur ve seçilen emaneti parametre olarak gönder
+                FrmEmanetDuzenle frmEmanetDuzenle = new FrmEmanetDuzenle(selectedEmanet);
+                frmEmanetDuzenle.ShowDialog();
+
+                // Düzenleme formundan geri dönüldüğünde, güncelleme yapılmış olabilir, bu yüzden listeyi tekrar yükle
+                DosyaOku();
+                dgvEmanetler.DataSource = null;
+                dgvEmanetler.DataSource = emanetler;
+            }
+            else
+            {
+                MessageBox.Show("Lütfen düzenlemek için bir emanet seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
     }
 }

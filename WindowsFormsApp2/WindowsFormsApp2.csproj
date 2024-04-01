@@ -64,6 +64,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmEmanetDuzenle.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmEmanetDuzenle.Designer.cs">
+      <DependentUpon>FrmEmanetDuzenle.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmKitapDuzenle.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +103,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmEmanetDuzenle.resx">
+      <DependentUpon>FrmEmanetDuzenle.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmKitapDuzenle.resx">
       <DependentUpon>FrmKitapDuzenle.cs</DependentUpon>
