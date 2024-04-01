@@ -9,8 +9,9 @@ namespace WindowsFormsApp
 {
     public partial class FrmKitapEkle : Form
     {
-       
+
         private List<Kitap> kitaplar;
+
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -26,6 +27,7 @@ namespace WindowsFormsApp
             OtomatikKitapIdAta(); // Otomatik KitapId ataması yap
             txtKitapId.Enabled = false;
         }
+
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -102,7 +104,7 @@ namespace WindowsFormsApp
             }
             return maxId;
         }
-
+      
         private void kitapId_TextChanged(object sender, EventArgs e)
         {
 
@@ -112,7 +114,98 @@ namespace WindowsFormsApp
         {
 
         }
-    }
 
- 
+
+
+        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void txtYazar_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+
+            // Seçili kitabın KitapId'sini al
+            int kitapId = Convert.ToInt32(selectedRow.Cells["KitapId"].Value);
+
+            // DataGridView'den seçili satırı kaldır
+            dataGridView1.Rows.Remove(selectedRow);
+
+            // kitaplar listesinden seçili kitabı sil
+            kitaplar.RemoveAll(kitap => kitap.KitapId == kitapId);
+
+            // Dosyayı güncelle
+            DosyaYaz();
+        }
+
+        private void btnKitapDuzenle_Click(object sender, EventArgs e)
+        {
+            // Seçili satırı al
+            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+
+            // Seçili kitabın KitapId'sini al
+            int kitapId = Convert.ToInt32(selectedRow.Cells["KitapId"].Value);
+
+            // Seçili kitabın bilgilerini al
+            string kitapAdi = Convert.ToString(selectedRow.Cells["KitapAdi"].Value);
+            string yazar = Convert.ToString(selectedRow.Cells["Yazar"].Value);
+
+            // Düzenleme formunu oluştur ve seçili kitabın bilgilerini aktar
+            FrmKitapDuzenle frmKitapDuzenle = new FrmKitapDuzenle(kitapId, kitapAdi, yazar);
+            DialogResult result = frmKitapDuzenle.ShowDialog();
+
+            // Düzenleme formundan döndüğünde, yapılan değişiklikleri güncelle
+            if (result == DialogResult.OK)
+            {
+                // Yapılan değişiklikleri al
+                string yeniKitapAdi = frmKitapDuzenle.YeniKitapAdi;
+                string yeniYazar = frmKitapDuzenle.YeniYazar;
+
+                // kitaplar listesinde ilgili kitabın bilgilerini güncelle
+                foreach (var kitap in kitaplar)
+                {
+                    if (kitap.KitapId == kitapId)
+                    {
+                        kitap.KitapAdi = yeniKitapAdi;
+                        kitap.Yazar = yeniYazar;
+                        break;
+                    }
+                }
+
+                // DataGridView'i güncelle
+                selectedRow.Cells["KitapAdi"].Value = yeniKitapAdi;
+                selectedRow.Cells["Yazar"].Value = yeniYazar;
+
+                // Dosyayı güncelle
+                DosyaYaz();
+            }
+        }
+
+        private void FrmKitapEkle_Load_1(object sender, EventArgs e)
+        {
+
+            // DataGridView'e sütunları ekle
+            dataGridView1.Columns.Add("KitapId", "Kitap ID");
+            dataGridView1.Columns.Add("KitapAdi", "Kitap Adı");
+            dataGridView1.Columns.Add("Yazar", "Yazar");
+
+            // Mevcut kitapları DataGridView'e ekle
+            foreach (var kitap in kitaplar)
+            {
+                dataGridView1.Rows.Add(kitap.KitapId, kitap.KitapAdi, kitap.Yazar);
+            }
+
+            // DataGridView'de bir kitap seçildiğinde "Kitabı Sil" düğmesini etkinleştir
+            dataGridView1.SelectionChanged += (obj, args) =>
+            {
+                btnKitapSil.Enabled = dataGridView1.SelectedRows.Count > 0;
+            };
+        }
+    }
 }
