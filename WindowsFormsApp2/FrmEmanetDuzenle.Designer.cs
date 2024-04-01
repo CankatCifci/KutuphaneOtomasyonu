@@ -67,7 +67,7 @@
             // btnEmanet
             // 
             this.btnEmanet.BackColor = System.Drawing.SystemColors.Highlight;
-            this.btnEmanet.Location = new System.Drawing.Point(649, 28);
+            this.btnEmanet.Location = new System.Drawing.Point(636, 29);
             this.btnEmanet.Name = "btnEmanet";
             this.btnEmanet.Size = new System.Drawing.Size(113, 48);
             this.btnEmanet.TabIndex = 3;
