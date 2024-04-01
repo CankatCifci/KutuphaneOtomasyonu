@@ -102,5 +102,87 @@ namespace WindowsFormsApp
             }
             return maxId;
         }
+
+        private void FrmUyeEkle_Load(object sender, EventArgs e)
+        {
+
+            // DataGridView'e sütunları ekle
+            dataGridView1.Columns.Add("UyeId", "Üye ID");
+            dataGridView1.Columns.Add("Ad", "Adı");
+            dataGridView1.Columns.Add("Soyad", "Soyadı");
+
+            // Üyeleri DataGridView'e ekle
+            foreach (var uye in uyeler)
+            {
+                dataGridView1.Rows.Add(uye.UyeId, uye.Ad, uye.Soyad);
+            }
+
+            // DataGridView'de bir üye seçildiğinde "Üyeyi Sil" düğmesini etkinleştir
+            dataGridView1.SelectionChanged += (obj, args) =>
+            {
+                UyeSil.Enabled = dataGridView1.SelectedRows.Count > 0;
+            };
+        }
+
+        private void UyeSil_Click(object sender, EventArgs e)
+        {
+            // Seçili satırı al
+            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+
+            // Seçili üyenin UyeId'sini al
+            int uyeId = Convert.ToInt32(selectedRow.Cells["UyeId"].Value);
+
+            // DataGridView'den seçili satırı kaldır
+            dataGridView1.Rows.Remove(selectedRow);
+
+            // uyeler listesinden seçili üyeyi sil
+            uyeler.RemoveAll(uye => uye.UyeId == uyeId);
+
+            // Dosyayı güncelle
+            DosyaYaz();
+        }
+
+        private void UyeDuzenle_Click(object sender, EventArgs e)
+        {
+            // Seçili satırı al
+            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+
+            // Seçili üyenin UyeId'sini al
+            int uyeId = Convert.ToInt32(selectedRow.Cells["UyeId"].Value);
+
+            // Seçili üyenin bilgilerini al
+            string ad = Convert.ToString(selectedRow.Cells["Ad"].Value);
+            string soyad = Convert.ToString(selectedRow.Cells["Soyad"].Value);
+
+            // Düzenleme formunu oluştur ve seçili üyenin bilgilerini aktar
+            FrmUyeDuzenle frmUyeDuzenle = new FrmUyeDuzenle(uyeId, ad, soyad);
+            DialogResult result = frmUyeDuzenle.ShowDialog();
+
+            // Düzenleme formundan döndüğünde, yapılan değişiklikleri güncelle
+            if (result == DialogResult.OK)
+            {
+                // Yapılan değişiklikleri al
+                string yeniAd = frmUyeDuzenle.YeniAd;
+                string yeniSoyad = frmUyeDuzenle.YeniSoyad;
+
+                // uyeler listesinde ilgili üyenin bilgilerini güncelle
+                foreach (var uye in uyeler)
+                {
+                    if (uye.UyeId == uyeId)
+                    {
+                        uye.Ad = yeniAd;
+                        uye.Soyad = yeniSoyad;
+                        break;
+                    }
+                }
+
+                // DataGridView'i güncelle
+                selectedRow.Cells["Ad"].Value = yeniAd;
+                selectedRow.Cells["Soyad"].Value = yeniSoyad;
+
+                // Dosyayı güncelle
+                DosyaYaz();
+            }
+        }
     }
 }
