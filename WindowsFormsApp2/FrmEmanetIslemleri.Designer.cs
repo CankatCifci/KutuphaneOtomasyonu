@@ -79,9 +79,9 @@
             // 
             // btnIade
             // 
-            this.btnIade.Location = new System.Drawing.Point(670, 98);
+            this.btnIade.Location = new System.Drawing.Point(670, 102);
             this.btnIade.Name = "btnIade";
-            this.btnIade.Size = new System.Drawing.Size(80, 30);
+            this.btnIade.Size = new System.Drawing.Size(80, 40);
             this.btnIade.TabIndex = 4;
             this.btnIade.Text = "iade";
             this.btnIade.UseVisualStyleBackColor = true;
@@ -97,11 +97,11 @@
             // dgvEmanetler
             // 
             this.dgvEmanetler.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvEmanetler.Location = new System.Drawing.Point(44, 237);
+            this.dgvEmanetler.Location = new System.Drawing.Point(29, 238);
             this.dgvEmanetler.Name = "dgvEmanetler";
             this.dgvEmanetler.RowHeadersWidth = 51;
             this.dgvEmanetler.RowTemplate.Height = 24;
-            this.dgvEmanetler.Size = new System.Drawing.Size(668, 150);
+            this.dgvEmanetler.Size = new System.Drawing.Size(734, 150);
             this.dgvEmanetler.TabIndex = 7;
             this.dgvEmanetler.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvEmanetler_CellContentClick);
             // 

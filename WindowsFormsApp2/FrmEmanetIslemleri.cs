@@ -42,7 +42,20 @@ namespace WindowsFormsApp2
             cmbUyeler.DisplayMember = "Ad"; // Üyelerin ad ve soyadlarını göster
             lstKitaplar.DataSource = kitaplar; // Kitapları liste kutusuna bağla
             lstKitaplar.DisplayMember = "KitapAdi"; // Kitapların adlarını göster
-            dgvEmanetler.DataSource = emanetler; // Emanetleri veri tabanı tablosuna bağla
+            dgvEmanetler.Columns.Add("EmanetId", "Emanet ID");
+            dgvEmanetler.Columns.Add("KitapAdi", "Kitap Adı");
+            dgvEmanetler.Columns.Add("UyeAdi", "Üye Adı");
+            dgvEmanetler.Columns.Add("EmanetTarihi", "Emanet Tarihi");
+            dgvEmanetler.Columns.Add("EkBilgi", "Ek Bilgi");
+
+            // Emanetleri DataGridView'e ekle
+            foreach (var emanet in emanetler)
+            {
+                Kitap kitap = kitaplar.FirstOrDefault(k => k.KitapId == emanet.KitapId);
+                Uye uye = uyeler.FirstOrDefault(u => u.UyeId == emanet.UyeId);
+
+                dgvEmanetler.Rows.Add(emanet.EmanetId, kitap?.KitapAdi, uye?.Ad, emanet.EmanetTarihi, emanet.EkBilgi);
+            }
         }
 
         private void btnEmanet_Click(object sender, EventArgs e)
@@ -204,12 +217,27 @@ namespace WindowsFormsApp2
         private void btnIade_Click_1(object sender, EventArgs e)
         {
             {
-                // Seçilen emanetin iade edilmesi işlemi gerçekleştirilir.
-                // Örnek olarak DataGridView'dan seçilen satırın bilgileri alınabilir.
-                MessageBox.Show("Kitap başarıyla iade edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                DataGridViewRow selectedRow = dgvEmanetler.SelectedRows[0];
 
-                // İade işlemi gerçekleştiğinde gerekli işlemler yapılır.
-                // Örneğin, seçilen emanetin listeden kaldırılması gerekebilir.
+                // Seçili emanetin ID'sini al
+                int emanetId = Convert.ToInt32(selectedRow.Cells["EmanetId"].Value);
+
+                // Seçili emaneti listeden kaldır
+                Emanet emanetToRemove = emanetler.FirstOrDefault(emanet => emanet.EmanetId == emanetId);
+                emanetler.Remove(emanetToRemove);
+
+                // DataGridView'i güncelle
+                dgvEmanetler.DataSource = null;
+                dgvEmanetler.DataSource = emanetler;
+
+                // İlgili emanetin kitap ve üye bağlantısını kaldır
+                emanetToRemove.UyeId = 0;
+                emanetToRemove.KitapId = 0;
+
+                // Listeyi JSON dosyasına yaz
+                DosyaYaz();
+
+                MessageBox.Show("Kitap başarıyla iade edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
         }
