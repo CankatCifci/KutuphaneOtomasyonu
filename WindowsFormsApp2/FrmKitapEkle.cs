@@ -36,12 +36,12 @@ namespace WindowsFormsApp
             string kitapAdi = txtKitapAdi.Text;
             string yazar = txtYazar.Text;
 
-            // SQLite veritabanına bağlan
+            //SQLite veritabanına bağlan
             using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
             {
                 connection.Open();
 
-                // Yeni kitabı SQLite veritabanına ekle
+
                 string insertQuery = "INSERT INTO Kitap (KitapAdi, Yazar) VALUES (@KitapAdi, @Yazar)";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
@@ -156,6 +156,21 @@ namespace WindowsFormsApp
 
             // Dosyayı güncelle
             DosyaYaz();
+
+            // SQLite veritabanından da seçili kitabı sil
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+                // KitapId'si verilen kitabı silme sorgusu
+                string deleteQuery = "DELETE FROM Kitap WHERE KitapId = @KitapId";
+
+                using (var command = new SQLiteCommand(deleteQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@KitapId", kitapId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         private void btnKitapDuzenle_Click(object sender, EventArgs e)
