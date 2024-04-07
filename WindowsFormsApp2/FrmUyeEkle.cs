@@ -4,13 +4,14 @@ using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using WindowsFormsApp2;
+using System.Data.SQLite;
 
 namespace WindowsFormsApp
 {
     public partial class FrmUyeEkle : Form
     {
         private List<Uye> uyeler;
-
+        private string databasePath = DatabaseHelper.databasePath;
         public FrmUyeEkle()
         {
             InitializeComponent();
@@ -33,6 +34,20 @@ namespace WindowsFormsApp
             string ad = txtAd.Text;
             string soyad = txtSoyad.Text;
 
+            //SQLite veritabanına bağlan
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+
+                string insertQuery = "INSERT INTO Uye (Ad, Soyad) VALUES (@Ad, @Soyad)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Ad",ad);
+                    command.Parameters.AddWithValue("@Soyad", soyad);
+                    command.ExecuteNonQuery();
+                }
+            }
             // Otomatik olarak yeni bir UyeId ata
             int yeniUyeId = GetSonUyeId() + 1;
 
