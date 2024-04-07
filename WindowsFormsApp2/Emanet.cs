@@ -10,7 +10,7 @@ namespace WindowsFormsApp2
     {
         private static int _nextEmanetId = 1;
 
-        public int EmanetId { get; private set; }
+        public int EmanetId { get; set; }
         public Kitap Kitap { get; set; }
         public Uye Uye { get; set; }
         public DateTime EmanetTarihi { get; set; }

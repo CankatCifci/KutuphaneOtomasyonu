@@ -36,27 +36,38 @@ namespace WindowsFormsApp
             string kitapAdi = txtKitapAdi.Text;
             string yazar = txtYazar.Text;
 
+            int yeniKitapId;
+
             //SQLite veritabanına bağlan
             using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
             {
                 connection.Open();
 
+                // Veritabanındaki en büyük KitapId'yi bul
+                string selectMaxIdQuery = "SELECT MAX(KitapId) FROM Kitap";
+                using (var command = new SQLiteCommand(selectMaxIdQuery, connection))
+                {
+                    object result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        yeniKitapId = Convert.ToInt32(result) + 1; // En büyük ID'nin üstüne 1 ekle
+                    }
+                    else
+                    {
+                        yeniKitapId = 1; // Veritabanında hiç kayıt yoksa ID'yi 1 olarak ata
+                    }
+                }
 
-                string insertQuery = "INSERT INTO Kitap (KitapAdi, Yazar) VALUES (@KitapAdi, @Yazar)";
+                // Yeni kitabı veritabanına ekle
+                string insertQuery = "INSERT INTO Kitap (KitapId, KitapAdi, Yazar) VALUES (@KitapId, @KitapAdi, @Yazar)";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@KitapId", yeniKitapId);
                     command.Parameters.AddWithValue("@KitapAdi", kitapAdi);
                     command.Parameters.AddWithValue("@Yazar", yazar);
                     command.ExecuteNonQuery();
                 }
             }
-
-            // Yeni kitabı listeye ekle
-            int yeniKitapId = GetSonKitapId() + 1;
-            kitaplar.Add(new Kitap { KitapId = yeniKitapId, KitapAdi = kitapAdi, Yazar = yazar });
-
-            // Listeyi JSON dosyasına yaz
-            DosyaYaz();
 
             // Kullanıcıya bilgi mesajı göster
             MessageBox.Show("Kitap başarıyla eklendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -224,13 +235,31 @@ namespace WindowsFormsApp
             dataGridView1.Columns.Add("KitapAdi", "Kitap Adı");
             dataGridView1.Columns.Add("Yazar", "Yazar");
 
-            // Mevcut kitapları DataGridView'e ekle
-            foreach (var kitap in kitaplar)
+            // SQLite veritabanından kitapları al
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
             {
-                dataGridView1.Rows.Add(kitap.KitapId, kitap.KitapAdi, kitap.Yazar);
+                connection.Open();
+
+                string selectQuery = "SELECT * FROM Kitap";
+
+                using (var command = new SQLiteCommand(selectQuery, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int kitapId = Convert.ToInt32(reader["KitapId"]);
+                            string kitapAdi = Convert.ToString(reader["KitapAdi"]);
+                            string yazar = Convert.ToString(reader["Yazar"]);
+
+                            // DataGridView'e kitapları ekle
+                            dataGridView1.Rows.Add(kitapId, kitapAdi, yazar);
+                        }
+                    }
+                }
             }
 
-            // DataGridView'de bir kitap seçildiğinde "Kitabı Sil" düğmesini etkinleştir
+            // DataGridView'de bir kitap seçildiğinde "Kitap Sil" düğmesini etkinleştir
             dataGridView1.SelectionChanged += (obj, args) =>
             {
                 btnKitapSil.Enabled = dataGridView1.SelectedRows.Count > 0;

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SQLite;
 
 namespace WindowsFormsApp2
 {
@@ -17,6 +18,7 @@ namespace WindowsFormsApp2
         private List<Uye> uyeler;
         private List<Kitap> kitaplar;
         private List<Emanet> emanetler;
+        private string databasePath = DatabaseHelper.databasePath;
 
         public FrmEmanetIslemleri()
         {
@@ -109,25 +111,75 @@ namespace WindowsFormsApp2
         {
             try
             {
-                string uyelerDosyaYolu = "uyeler.json";
-                if (File.Exists(uyelerDosyaYolu))
+                // Üyeleri dosyadan değil de veritabanından al
+                string selectUyelerQuery = "SELECT * FROM Uye";
+                using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
                 {
-                    string jsonUyeler = File.ReadAllText(uyelerDosyaYolu);
-                    uyeler = JsonConvert.DeserializeObject<List<Uye>>(jsonUyeler);
+                    connection.Open();
+                    using (var command = new SQLiteCommand(selectUyelerQuery, connection))
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Uye uye = new Uye
+                                {
+                                    UyeId = Convert.ToInt32(reader["UyeId"]),
+                                    Ad = Convert.ToString(reader["Ad"]),
+                                    Soyad = Convert.ToString(reader["Soyad"]),
+                                    
+                                };
+                                uyeler.Add(uye);
+                            }
+                        }
+                    }
                 }
 
-                string kitaplarDosyaYolu = "kitaplar.json";
-                if (File.Exists(kitaplarDosyaYolu))
+                // Kitapları dosyadan değil de veritabanından al
+                string selectKitaplarQuery = "SELECT * FROM Kitap";
+                using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
                 {
-                    string jsonKitaplar = File.ReadAllText(kitaplarDosyaYolu);
-                    kitaplar = JsonConvert.DeserializeObject<List<Kitap>>(jsonKitaplar);
+                    connection.Open();
+                    using (var command = new SQLiteCommand(selectKitaplarQuery, connection))
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Kitap kitap = new Kitap
+                                {
+                                    KitapId = Convert.ToInt32(reader["KitapId"]),
+                                    KitapAdi = Convert.ToString(reader["KitapAdi"]),
+                                    Yazar = Convert.ToString(reader["Yazar"])
+                                };
+                                kitaplar.Add(kitap);
+                            }
+                        }
+                    }
                 }
 
-                string emanetlerDosyaYolu = "emanetler.json";
-                if (File.Exists(emanetlerDosyaYolu))
+                // Emanetleri dosyadan değil de veritabanından al
+                string selectEmanetlerQuery = "SELECT * FROM Emanet";
+                using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
                 {
-                    string jsonEmanetler = File.ReadAllText(emanetlerDosyaYolu);
-                    emanetler = JsonConvert.DeserializeObject<List<Emanet>>(jsonEmanetler);
+                    connection.Open();
+                    using (var command = new SQLiteCommand(selectEmanetlerQuery, connection))
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Emanet emanet = new Emanet
+                                {
+                                    EmanetId = Convert.ToInt32(reader["EmanetId"]),
+                                    UyeId = Convert.ToInt32(reader["UyeId"]),
+                                    KitapId = Convert.ToInt32(reader["KitapId"]),
+                                  
+                                };
+                                emanetler.Add(emanet);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -178,38 +230,52 @@ namespace WindowsFormsApp2
 
         private void btnEmanet_Click_1(object sender, EventArgs e)
         {
+            // Seçilen üye ve kitap bilgilerine göre yeni bir emanet oluştur
+            Uye selectedUye = (Uye)cmbUyeler.SelectedItem;
+            Kitap selectedKitap = (Kitap)lstKitaplar.SelectedItem;
+            string ekBilgi = txtEkBilgi.Text;
+
+            if (selectedUye != null && selectedKitap != null)
             {
-                // Seçilen üye ve kitap bilgilerine göre yeni bir emanet oluştur
-                Uye selectedUye = (Uye)cmbUyeler.SelectedItem;
-                Kitap selectedKitap = (Kitap)lstKitaplar.SelectedItem;
-                string ekBilgi = txtEkBilgi.Text;
-
-                if (selectedUye != null && selectedKitap != null)
+                // Yeni emanet nesnesi oluştur
+                Emanet yeniEmanet = new Emanet
                 {
-                    Emanet yeniEmanet = new Emanet
-                    {
-                        UyeId = selectedUye.UyeId,
-                        KitapId = selectedKitap.KitapId,
-                        EmanetTarihi = DateTime.Now,
-                        EkBilgi = ekBilgi
-                    };
+                    UyeId = selectedUye.UyeId,
+                    KitapId = selectedKitap.KitapId,
+                    EmanetTarihi = DateTime.Now,
+                    EkBilgi = ekBilgi
+                };
 
-                    // Yeni emaneti listeye ekle
-                    emanetler.Add(yeniEmanet);
+                // Emaneti veritabanına kaydet
+                KaydetEmanet(yeniEmanet);
 
-                    // Listeyi JSON dosyasına yaz
-                    DosyaYaz();
+                // Kullanıcıya bilgi mesajı göster
+                MessageBox.Show("Kitap başarıyla emanet edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Kullanıcıya bilgi mesajı göster
-                    MessageBox.Show("Kitap başarıyla emanet edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // DataGridView'i güncelle
+                dgvEmanetler.DataSource = null;
+                dgvEmanetler.DataSource = emanetler;
+            }
+            else
+            {
+                MessageBox.Show("Lütfen bir üye ve bir kitap seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
 
-                    // DataGridView'i güncelle
-                    dgvEmanetler.DataSource = null;
-                    dgvEmanetler.DataSource = emanetler;
-                }
-                else
+        private void KaydetEmanet(Emanet emanet)
+        {
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+                string insertQuery = "INSERT INTO Emanet (UyeId, KitapId, EmanetTarihi, EkBilgi) VALUES (@UyeId, @KitapId, @EmanetTarihi, @EkBilgi)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
                 {
-                    MessageBox.Show("Lütfen bir üye ve bir kitap seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    command.Parameters.AddWithValue("@UyeId", emanet.UyeId);
+                    command.Parameters.AddWithValue("@KitapId", emanet.KitapId);
+                    command.Parameters.AddWithValue("@EmanetTarihi", emanet.EmanetTarihi);
+                    command.Parameters.AddWithValue("@EkBilgi", emanet.EkBilgi);
+                    command.ExecuteNonQuery();
                 }
             }
         }

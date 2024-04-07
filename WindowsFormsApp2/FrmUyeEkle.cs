@@ -126,10 +126,27 @@ namespace WindowsFormsApp
             dataGridView1.Columns.Add("Ad", "Adı");
             dataGridView1.Columns.Add("Soyad", "Soyadı");
 
-            // Üyeleri DataGridView'e ekle
-            foreach (var uye in uyeler)
+            // SQLite veritabanına bağlan
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
             {
-                dataGridView1.Rows.Add(uye.UyeId, uye.Ad, uye.Soyad);
+                connection.Open();
+
+                // Veritabanından üyeleri seç
+                string selectQuery = "SELECT * FROM Uye";
+                using (var command = new SQLiteCommand(selectQuery, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Her bir satırı DataGridView'e ekle
+                        while (reader.Read())
+                        {
+                            int uyeId = reader.GetInt32(reader.GetOrdinal("UyeId"));
+                            string ad = reader.GetString(reader.GetOrdinal("Ad"));
+                            string soyad = reader.GetString(reader.GetOrdinal("Soyad"));
+                            dataGridView1.Rows.Add(uyeId, ad, soyad);
+                        }
+                    }
+                }
             }
 
             // DataGridView'de bir üye seçildiğinde "Üyeyi Sil" düğmesini etkinleştir
@@ -150,11 +167,21 @@ namespace WindowsFormsApp
             // DataGridView'den seçili satırı kaldır
             dataGridView1.Rows.Remove(selectedRow);
 
-            // uyeler listesinden seçili üyeyi sil
+            // JSON dosyasından seçili üyeyi sil
             uyeler.RemoveAll(uye => uye.UyeId == uyeId);
-
-            // Dosyayı güncelle
             DosyaYaz();
+
+            // SQLite veritabanından seçili üyeyi sil
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+                string deleteQuery = "DELETE FROM Uye WHERE UyeId = @UyeId";
+                using (var command = new SQLiteCommand(deleteQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UyeId", uyeId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         private void UyeDuzenle_Click(object sender, EventArgs e)
