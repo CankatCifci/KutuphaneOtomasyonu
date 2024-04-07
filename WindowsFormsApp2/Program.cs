@@ -16,6 +16,7 @@ namespace WindowsFormsApp2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            DatabaseHelper.InitializeDatabase();
             Application.Run(new Form1());
         }
     }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using WindowsFormsApp2;
+using System.Data.SQLite;
 
 namespace WindowsFormsApp
 {
@@ -11,7 +12,7 @@ namespace WindowsFormsApp
     {
 
         private List<Kitap> kitaplar;
-
+        private string databasePath = DatabaseHelper.databasePath;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -35,10 +36,23 @@ namespace WindowsFormsApp
             string kitapAdi = txtKitapAdi.Text;
             string yazar = txtYazar.Text;
 
-            // Otomatik olarak yeni bir KitapId ata
-            int yeniKitapId = GetSonKitapId() + 1;
+            // SQLite veritabanına bağlan
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+                // Yeni kitabı SQLite veritabanına ekle
+                string insertQuery = "INSERT INTO Kitap (KitapAdi, Yazar) VALUES (@KitapAdi, @Yazar)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@KitapAdi", kitapAdi);
+                    command.Parameters.AddWithValue("@Yazar", yazar);
+                    command.ExecuteNonQuery();
+                }
+            }
 
             // Yeni kitabı listeye ekle
+            int yeniKitapId = GetSonKitapId() + 1;
             kitaplar.Add(new Kitap { KitapId = yeniKitapId, KitapAdi = kitapAdi, Yazar = yazar });
 
             // Listeyi JSON dosyasına yaz
