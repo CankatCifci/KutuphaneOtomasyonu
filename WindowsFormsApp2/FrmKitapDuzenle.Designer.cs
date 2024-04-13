@@ -91,6 +91,7 @@
             this.Controls.Add(this.btnKaydet);
             this.Name = "FrmKitapDuzenle";
             this.Text = "FrmKitapDuzenle";
+            this.Load += new System.EventHandler(this.FrmKitapDuzenle_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
