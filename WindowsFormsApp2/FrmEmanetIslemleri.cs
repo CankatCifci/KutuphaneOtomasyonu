@@ -282,32 +282,41 @@ namespace WindowsFormsApp2
 
         private void btnIade_Click_1(object sender, EventArgs e)
         {
-            {
-                DataGridViewRow selectedRow = dgvEmanetler.SelectedRows[0];
+            // Seçili emanet bilgisini al
+            DataGridViewRow selectedRow = dgvEmanetler.SelectedRows[0];
+            int emanetId = Convert.ToInt32(selectedRow.Cells["EmanetId"].Value);
 
-                // Seçili emanetin ID'sini al
-                int emanetId = Convert.ToInt32(selectedRow.Cells["EmanetId"].Value);
+            // Seçili emaneti SQLite veritabanından kaldır
+            SilEmanet(emanetId);
 
-                // Seçili emaneti listeden kaldır
-                Emanet emanetToRemove = emanetler.FirstOrDefault(emanet => emanet.EmanetId == emanetId);
-                emanetler.Remove(emanetToRemove);
+            // Seçili emaneti listeden kaldır
+            Emanet emanetToRemove = emanetler.FirstOrDefault(emanet => emanet.EmanetId == emanetId);
+            emanetler.Remove(emanetToRemove);
 
-                // DataGridView'i güncelle
-                dgvEmanetler.DataSource = null;
-                dgvEmanetler.DataSource = emanetler;
+            // DataGridView'i güncelle
+            dgvEmanetler.DataSource = null;
+            dgvEmanetler.DataSource = emanetler;
 
-                // İlgili emanetin kitap ve üye bağlantısını kaldır
-                emanetToRemove.UyeId = 0;
-                emanetToRemove.KitapId = 0;
+            // Listeyi JSON dosyasına yaz
+            DosyaYaz();
 
-                // Listeyi JSON dosyasına yaz
-                DosyaYaz();
-
-                MessageBox.Show("Kitap başarıyla iade edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-
+            MessageBox.Show("Kitap başarıyla iade edildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void SilEmanet(int emanetId)
+        {
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+                string deleteQuery = "DELETE FROM Emanet WHERE EmanetId = @EmanetId";
+                using (var command = new SQLiteCommand(deleteQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@EmanetId", emanetId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private void dgvEmanetler_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
