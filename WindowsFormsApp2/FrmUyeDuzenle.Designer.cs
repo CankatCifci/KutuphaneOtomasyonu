@@ -91,6 +91,7 @@
             this.Controls.Add(this.txtAd);
             this.Name = "FrmUyeDuzenle";
             this.Text = "FrmUyeDuzenle";
+            this.Load += new System.EventHandler(this.FrmUyeDuzenle_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
