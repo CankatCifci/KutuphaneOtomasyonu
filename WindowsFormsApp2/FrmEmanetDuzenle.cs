@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace WindowsFormsApp2
         private List<Uye> uyeler;
         private List<Kitap> kitaplar;
         private List<Emanet> emanetler;
+        private string databasePath = DatabaseHelper.databasePath;
 
         public FrmEmanetDuzenle(Emanet selectedEmanet)
         {
@@ -111,50 +113,79 @@ namespace WindowsFormsApp2
 
         private void btnEmanet_Click(object sender, EventArgs e)
         {
-            Uye selectedUye = (Uye)cmbUyeler.SelectedItem;
-            Kitap selectedKitap = (Kitap)lstKitaplar.SelectedItem;
-            string ekBilgi = txtEkBilgi.Text;
-
-            if (selectedUye != null && selectedKitap != null)
+            if (dgvEmanetler.SelectedRows.Count > 0) // Seçili bir emanet var mı kontrol et
             {
-                // Yeni emanet oluştur
-                Emanet yeniEmanet = new Emanet
-                {
-                    UyeId = selectedUye.UyeId,
-                    KitapId = selectedKitap.KitapId,
-                    EmanetTarihi = DateTime.Now,
-                    EkBilgi = ekBilgi
-                };
+                Uye selectedUye = (Uye)cmbUyeler.SelectedItem;
+                Kitap selectedKitap = (Kitap)lstKitaplar.SelectedItem;
+                string ekBilgi = txtEkBilgi.Text;
 
-                // Seçilen emanetin ID'sini al
-                int selectedEmanetId = Convert.ToInt32(dgvEmanetler.SelectedRows[0].Cells["EmanetId"].Value);
-
-                // Mevcut listedeki ilgili emaneti bul ve güncelle
-                Emanet eskiEmanet = emanetler.FirstOrDefault(emanet => emanet.EmanetId == selectedEmanetId);
-                if (eskiEmanet != null)
+                if (selectedUye != null && selectedKitap != null)
                 {
-                    eskiEmanet.UyeId = yeniEmanet.UyeId;
-                    eskiEmanet.KitapId = yeniEmanet.KitapId;
-                    eskiEmanet.EmanetTarihi = yeniEmanet.EmanetTarihi;
-                    eskiEmanet.EkBilgi = yeniEmanet.EkBilgi;
+                    // Yeni emanet oluştur
+                    Emanet yeniEmanet = new Emanet
+                    {
+                        UyeId = selectedUye.UyeId,
+                        KitapId = selectedKitap.KitapId,
+                        EmanetTarihi = DateTime.Now,
+                        EkBilgi = ekBilgi
+                    };
+
+                    // Seçilen emanetin ID'sini al
+                    int selectedEmanetId = Convert.ToInt32(dgvEmanetler.SelectedRows[0].Cells["EmanetId"].Value);
+
+                    // Mevcut listedeki ilgili emaneti bul ve güncelle
+                    Emanet eskiEmanet = emanetler.FirstOrDefault(emanet => emanet.EmanetId == selectedEmanetId);
+                    if (eskiEmanet != null)
+                    {
+                        // SQLite veritabanında emaneti güncelle
+                        GuncelleEmanet(eskiEmanet, yeniEmanet);
+
+                        // Listeyi güncelle
+                        eskiEmanet.UyeId = yeniEmanet.UyeId;
+                        eskiEmanet.KitapId = yeniEmanet.KitapId;
+                        eskiEmanet.EmanetTarihi = yeniEmanet.EmanetTarihi;
+                        eskiEmanet.EkBilgi = yeniEmanet.EkBilgi;
+                    }
+
+                    // Listeyi JSON dosyasına yaz
+                    DosyaYaz();
+
+                    // Kullanıcıya bilgi mesajı göster
+                    MessageBox.Show("Emanet bilgileri başarıyla güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // DataGridView'i güncelle
+                    dgvEmanetler.DataSource = null;
+                    dgvEmanetler.DataSource = emanetler;
                 }
-
-                // Listeyi JSON dosyasına yaz
-                DosyaYaz();
-
-                // Kullanıcıya bilgi mesajı göster
-                MessageBox.Show("Emanet bilgileri başarıyla güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                // DataGridView'i güncelle
-                dgvEmanetler.DataSource = null;
-                dgvEmanetler.DataSource = emanetler;
+                else
+                {
+                    MessageBox.Show("Lütfen bir üye ve bir kitap seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             else
             {
-                MessageBox.Show("Lütfen bir üye ve bir kitap seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Lütfen güncellenecek bir emanet seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
+        private void GuncelleEmanet(Emanet eskiEmanet, Emanet yeniEmanet)
+        {
+            using (var connection = new SQLiteConnection("Data Source=" + databasePath + ";Version=3;"))
+            {
+                connection.Open();
+
+                string updateQuery = "UPDATE Emanet SET UyeId = @UyeId, KitapId = @KitapId, EmanetTarihi = @EmanetTarihi, EkBilgi = @EkBilgi WHERE EmanetId = @EmanetId";
+                using (var command = new SQLiteCommand(updateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UyeId", yeniEmanet.UyeId);
+                    command.Parameters.AddWithValue("@KitapId", yeniEmanet.KitapId);
+                    command.Parameters.AddWithValue("@EmanetTarihi", yeniEmanet.EmanetTarihi);
+                    command.Parameters.AddWithValue("@EkBilgi", yeniEmanet.EkBilgi);
+                    command.Parameters.AddWithValue("@EmanetId", eskiEmanet.EmanetId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private void lstKitaplar_SelectedIndexChanged(object sender, EventArgs e)
         {
             Kitap selectedKitap = (Kitap)lstKitaplar.SelectedItem;
